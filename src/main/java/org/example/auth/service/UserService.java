@@ -8,7 +8,7 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 
 public interface UserService {
     JwtAutenticationDto signIn(UserCredentialsDto userCredentialsDto);
-    JwtAutenticationDto refreshToken(RefreshTokenDto refreshTokenDto);
+    JwtAutenticationDto refreshToken(String refreshTokenDto);
     UserDto getUserById(String id) throws  ChangeSetPersister.NotFoundException;
     UserDto getUserByEmail(String email) throws ChangeSetPersister.NotFoundException;
     String addUser(UserDto user);

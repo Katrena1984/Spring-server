@@ -21,8 +21,6 @@ public class User {
     @Column(nullable = false)
     private String username;
 
-    private String givenName;
-    private String familyName;
     private String picture;
 
     @Column(unique = true, nullable = false)
@@ -38,13 +36,13 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    //@Enumerated(EnumType.STRING)
-    //@Column(nullable = false)
-    //private Role role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
-    //public enum Role {
-       // ADMIN, EDITOR, VIEWER
-    //}
+    public enum Role {
+        ADMIN, EDITOR, VIEWER
+    }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Card> cards;

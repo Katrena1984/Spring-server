@@ -3,7 +3,6 @@ package org.example.auth.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.auth.Dto.JwtAutenticationDto;
 import org.example.auth.Dto.UserCredentialsDto;
-import org.example.auth.Dto.RefreshTokenDto;
 import org.example.auth.Dto.UserDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +13,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.example.auth.service.UserService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
 import java.time.Duration;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class AuthController {
     private ResponseCookie generateJwtCookie(String tokenName, String tokenValue, long expirationMs) {
         return ResponseCookie.from(tokenName, tokenValue)
                 .httpOnly(true)                    // Защита от XSS
-                .secure(false)                     // true только для HTTPS
+                .secure(true)                     // true только для HTTPS
                 .path("/")                         // Доступно для всего сайта
                 .maxAge(Duration.ofMillis(expirationMs))
                 .sameSite("Strict")               // Защита от CSRF
@@ -36,7 +37,7 @@ public class AuthController {
     private ResponseCookie getCleanCookie(String tokenName) {
         return ResponseCookie.from(tokenName, "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)                        // Удалить cookie
                 .sameSite("Strict")
@@ -50,10 +51,10 @@ public class AuthController {
 
             // Создаём cookie с токенами
             ResponseCookie accessTokenCookie = generateJwtCookie("accessToken",
-                    jwtAutenticationDto.getToken(), 86400000); // 24 часа
+                    jwtAutenticationDto.getToken(), 900000);
 
             ResponseCookie refreshTokenCookie = generateJwtCookie("refreshToken",
-                    jwtAutenticationDto.getRefreshToken(), 86400000); // 24 часа
+                    jwtAutenticationDto.getRefreshToken(),  604800000);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, accessTokenCookie.toString())
@@ -63,7 +64,7 @@ public class AuthController {
                     ));
 
         } catch (AuthenticationException e){
-            throw new RuntimeException("Authentication failed: " + e.getMessage());
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
     }
 
@@ -73,16 +74,29 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody RefreshTokenDto refreshTokenDto){
-        try {
-            JwtAutenticationDto newTokens = userService.refreshToken(refreshTokenDto);
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        String refreshToken = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-            // Создаём новые cookie
+        if (refreshToken == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "No refresh token"));
+        }
+
+        try {
+            JwtAutenticationDto newTokens = userService.refreshToken(refreshToken);
+
             ResponseCookie newAccessTokenCookie = generateJwtCookie("accessToken",
-                    newTokens.getToken(), 86400000);
+                    newTokens.getToken(), 900000);
 
             ResponseCookie newRefreshTokenCookie = generateJwtCookie("refreshToken",
-                    newTokens.getRefreshToken(), 86400000);
+                    newTokens.getRefreshToken(), 604800000);
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, newAccessTokenCookie.toString())
@@ -90,7 +104,6 @@ public class AuthController {
                     .body(Map.of("message", "Token refreshed successfully"));
 
         } catch (Exception e) {
-            // Удаляем cookie при ошибке
             return ResponseEntity.status(401)
                     .header(HttpHeaders.SET_COOKIE, getCleanCookie("accessToken").toString())
                     .header(HttpHeaders.SET_COOKIE, getCleanCookie("refreshToken").toString())

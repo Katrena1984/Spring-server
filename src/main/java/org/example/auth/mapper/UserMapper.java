@@ -9,8 +9,7 @@ public class UserMapper {
     public User toEntity(UserDto dto) {
         User user = new User();
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // будет хешироваться позже
-        //user.setRole(User.Role.valueOf(dto.getRole().toUpperCase()));
+        user.setPassword(dto.getPassword());
         user.setUsername(dto.getUsername());
         return user;
     }
@@ -18,7 +17,7 @@ public class UserMapper {
     public UserDto toDto(User entity) {
         UserDto dto = new UserDto();
         dto.setEmail(entity.getEmail());
-        //dto.setRole(entity.getRole().name());
+        dto.setRole(entity.getRole().name());
         dto.setUsername(entity.getUsername());
         return dto;
     }

@@ -35,13 +35,14 @@ public class userServiceImpl implements UserService {
     }
 
     @Override
-    public JwtAutenticationDto refreshToken(RefreshTokenDto refreshTokenDto) {
-        String refreshToken = refreshTokenDto.getRefreshToken();
-        if (refreshToken != null && jwtSer.validateJwtToken(refreshToken)){
-            User user = findByEmail(jwtSer.getEmailFromToken(refreshToken));
-            return jwtSer.refreshBaseToken(user.getEmail(), refreshToken);
+    public JwtAutenticationDto refreshToken(String refreshToken) {
+        if (!jwtSer.validateJwtToken(refreshToken)) {
+            throw new RuntimeException("Invalid token");
         }
-        throw new BadCredentialsException("Invalid refresh token");
+        String email = jwtSer.getEmailFromToken(refreshToken);
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        return jwtSer.generateAuthToken(user.getEmail());
     }
 
     @Override
@@ -62,6 +63,9 @@ public class userServiceImpl implements UserService {
     public  String addUser(UserDto userDto){
         User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getRole() == null) {
+            user.setRole(User.Role.VIEWER);
+        }
         userRepository.save(user);
         return  "User added";
     }

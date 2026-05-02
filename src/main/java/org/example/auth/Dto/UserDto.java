@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 public class UserDto {
     private String email;
     private String password;
-    //private String role; // ADMIN, EDITOR, VIEWER
+    private String role; // ADMIN, EDITOR, VIEWER
     @NotBlank
     private String username;
 }
