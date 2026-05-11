@@ -1,4 +1,5 @@
 HELP.md
+docker-compose.yml
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -31,3 +32,16 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### SECRETS & CONFIGS ###
+.env
+.env.local
+application-prod.properties
+application-secret.properties
+*.log
+logs/
+
+### OS FILES ###
+.DS_Store
+Thumbs.db
+
