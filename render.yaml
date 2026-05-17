@@ -3,10 +3,26 @@ services:
     name: spring-server
     env: docker
     plan: free
+    branch: feature/develop
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/*.jar
     envVars:
       - key: JWT_SECRET
-        value: test123
-    disk:
-      name: db-data
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 1
+        value: MySuperSecretKey123!
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: my-postgres-db
+          property: connectionString
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase:
+          name: my-postgres-db
+          property: user
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase:
+          name: my-postgres-db
+          property: password
+
+  - type: pserv
+    name: my-postgres-db
+    plan: free
+    ipAllowList: [] # Разрешить доступ только внутри Render
