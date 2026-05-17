@@ -1,11 +1,10 @@
 services:
+  # 1. Spring Boot приложение (Docker)
   - type: web
     name: spring-server
     env: docker
     plan: free
     branch: feature/develop
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -jar target/*.jar
     envVars:
       - key: JWT_SECRET
         value: MySuperSecretKey123!
@@ -22,7 +21,8 @@ services:
           name: my-postgres-db
           property: password
 
+  # 2. База данных PostgreSQL
   - type: pserv
     name: my-postgres-db
     plan: free
-    ipAllowList: [] # Разрешить доступ только внутри Render
+    databaseName: auth_spuu
