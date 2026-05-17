@@ -25,4 +25,4 @@ services:
   - type: pserv
     name: my-postgres-db
     plan: free
-    databaseName: auth_spuu
+    databaseName: auth
