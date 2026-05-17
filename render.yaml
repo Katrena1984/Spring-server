@@ -22,6 +22,9 @@ services:
           property: password
 
   # 2. База данных PostgreSQL
-  - type: postgres
+  - type: pserv
     name: my-postgres-db
     plan: free
+    engine: postgresql
+    version: "15"
+    databaseName: auth_spuu
