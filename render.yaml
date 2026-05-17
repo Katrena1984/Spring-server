@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: spring-server
+    env: docker
+    plan: free
+    envVars:
+      - key: JWT_SECRET
+        value: test123
+    disk:
+      name: db-data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 1
