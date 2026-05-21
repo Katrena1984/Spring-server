@@ -27,4 +27,12 @@ public class UserController {
             throws ChangeSetPersister.NotFoundException {
         return ResponseEntity.ok(userService.getUserById(id));
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDto> getCurrentUserProfile(Authentication authentication) 
+            throws ChangeSetPersister.NotFoundException {
+        
+        String email = authentication.getName(); 
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
 }
