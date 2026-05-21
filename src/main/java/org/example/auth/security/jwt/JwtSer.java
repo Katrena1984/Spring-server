@@ -104,5 +104,4 @@ public class JwtSer {
             throw new RuntimeException("Invalid JWT configuration", e);
         }
     }
-    }
 }
