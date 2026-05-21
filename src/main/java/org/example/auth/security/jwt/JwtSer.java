@@ -19,15 +19,23 @@ import javax.crypto.SecretKey;
 
 @Component
 public class JwtSer {
-    @Value("TSiPOdEBdgMbs6HkBUpB4hpUUZV58PuyqjIhOyTlXHQ=")
+    @Value("${app.jwt.secret:m4k4n4b4b4j4k4mrj4b4v4v4b4m44nb4v3v}") 
     private String jwtSecret;
     private static final Logger LOGGER = LogManager.getLogger(JwtSer.class);
 
     public JwtAutenticationDto generateAuthToken(String email){
+        if (email == null || email.isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
         JwtAutenticationDto jwtDto = new JwtAutenticationDto();
-        jwtDto.setToken(generateJwtToken(email));
-        jwtDto.setRefreshToken(generateRefreshToken(email));
-        return  jwtDto;
+        try {
+            jwtDto.setToken(generateJwtToken(email));
+            jwtDto.setRefreshToken(generateRefreshToken(email));
+        } catch (Exception e) {
+            LOGGER.error("Error generating tokens for user: " + email, e);
+            throw new RuntimeException("Failed to generate JWT", e);
+        }
+        return jwtDto;
     }
 
     public JwtAutenticationDto refreshBaseToken(String email, String refreshToken){
@@ -88,7 +96,13 @@ public class JwtSer {
     }
 
     private SecretKey getSignInKey(){
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return  Keys.hmacShaKeyFor(keyBytes);
+        try {
+            byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+            return Keys.hmacShaKeyFor(keyBytes);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Invalid JWT Secret Key format", e);
+            throw new RuntimeException("Invalid JWT configuration", e);
+        }
+    }
     }
 }
