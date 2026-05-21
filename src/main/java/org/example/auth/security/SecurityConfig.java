@@ -1,4 +1,5 @@
 package org.example.auth.security;
+
 import lombok.RequiredArgsConstructor;
 import org.example.auth.security.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,26 +30,27 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("*")); // Для тестов
+                    
+                    config.setAllowedOriginPatterns(List.of("*")); 
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
-                    config.setAllowCredentials(true); // Важно для куки!
+                    config.setAllowCredentials(true); 
+                    config.setMaxAge(3600L);
+                    
                     return config;
                 }))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/user/registration",
-                        "/auth/**").permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/user/registration", "/auth/**").permitAll()
                         .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/**").authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        
         return http.build();
     }
 
     @Bean
     public PasswordEncoder getPasswordEncoder(){
-        return  new BCryptPasswordEncoder(12);
+        return new BCryptPasswordEncoder(12);
     }
-
-
 }
-
