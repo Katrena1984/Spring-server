@@ -65,6 +65,9 @@ public class AuthController {
 
         } catch (AuthenticationException e){
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
+        } catch (Exception e){  
+            e.printStackTrace(); 
+            return ResponseEntity.status(500).body(Map.of("error", "Server error: " + e.getMessage()));
         }
     }
 
