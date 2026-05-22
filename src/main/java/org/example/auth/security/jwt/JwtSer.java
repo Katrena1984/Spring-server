@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
 
 @Component
 public class JwtSer {
-    @Value("${app.jwt.secret:m4k4n4b4b4j4k4mrj4b4v4v4b4m44nb4v3v}") 
+    @Value("${app.jwt.secret:fIwXMy5LxcvgAt5NPDYMXNXxr9ygARb4jjr9yskAonK}") 
     private String jwtSecret;
     private static final Logger LOGGER = LogManager.getLogger(JwtSer.class);
 
