@@ -72,7 +72,7 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<String> register(@RequestBody UserDto userDto) {
+    public ResponseEntity<?> register(@RequestBody UserDto userDto) {
         userService.addUser(userDto);
 
     UserCredentialsDto credentials = new UserCredentialsDto(
