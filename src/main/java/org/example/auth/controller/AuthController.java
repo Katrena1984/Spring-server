@@ -73,7 +73,29 @@ public class AuthController {
 
     @PostMapping("/registration")
     public ResponseEntity<String> register(@RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.addUser(userDto));
+        userService.addUser(userDto);
+
+    UserCredentialsDto credentials = new UserCredentialsDto(
+            userDto.getEmail(), 
+            userDto.getPassword()
+    );
+    JwtAutenticationDto tokens = userService.signIn(credentials);
+
+    ResponseCookie accessCookie = generateJwtCookie("accessToken", tokens.getToken(), 900000);
+    ResponseCookie refreshCookie = generateJwtCookie("refreshToken", tokens.getRefreshToken(), 604800000);
+
+    Map<String, Object> responseBody = Map.of(
+            "message", "Registration successful",
+            "user", Map.of(
+                    "email", userDto.getEmail(),
+                    "role", "VIEWER" // Роль по умолчанию
+            )
+    );
+
+    return ResponseEntity.ok()
+            .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+            .body(responseBody);
     }
 
     @PostMapping("/refresh")
