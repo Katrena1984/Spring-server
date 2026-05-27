@@ -91,7 +91,7 @@ public class AuthController {
                     "message", "Registration successful",
                     "user", Map.of(
                             "email", userDto.getEmail(),
-                            "role", "VIEWER"
+                            "role", assignedRole.name()
                     )
             );
 
