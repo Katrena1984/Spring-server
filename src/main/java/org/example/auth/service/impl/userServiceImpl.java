@@ -62,7 +62,7 @@ public class userServiceImpl implements UserService {
     }
 
     @Override
-    public String addUser(UserDto userDto, String accessCode) {
+    public User.Role addUser(UserDto userDto, String accessCode) {
         User.Role assignedRole = validateAccessCode(accessCode);
 
         User user = userMapper.toEntity(userDto);
@@ -70,7 +70,7 @@ public class userServiceImpl implements UserService {
         user.setRole(assignedRole);
 
         userRepository.save(user);
-        return "User added";
+        return assignedRole;
     }
 
     private User.Role validateAccessCode(String code) {
