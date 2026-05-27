@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.auth.Dto.JwtAutenticationDto;
 import org.example.auth.Dto.UserCredentialsDto;
 import org.example.auth.Dto.UserDto;
+import org.example.auth.entity.User; 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.AuthenticationException;
@@ -72,21 +73,17 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody UserDto userDto,
                                       @RequestParam(required = false) String accessCode) {
         try {
-            // 1. Создаем пользователя с проверкой кода
-            userService.addUser(userDto, accessCode);
+            User.Role assignedRole = userService.addUser(userDto, accessCode);
 
-            // 2. Авто-вход: генерируем токены
             UserCredentialsDto credentials = new UserCredentialsDto(
                     userDto.getEmail(),
                     userDto.getPassword()
             );
             JwtAutenticationDto tokens = userService.signIn(credentials);
 
-            // 3. Куки
             ResponseCookie accessCookie = generateJwtCookie("accessToken", tokens.getToken(), 900000);
             ResponseCookie refreshCookie = generateJwtCookie("refreshToken", tokens.getRefreshToken(), 604800000);
 
-            // 4. Ответ
             Map<String, Object> responseBody = Map.of(
                     "message", "Registration successful",
                     "user", Map.of(
