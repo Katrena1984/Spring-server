@@ -2,6 +2,7 @@ package org.example.auth.service.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.example.auth.repository.RegistrationCodeRepository;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.example.auth.Dto.JwtAutenticationDto;
 import org.example.auth.service.UserService;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class userServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final RegistrationCodeRepository codeRepository;
     private final UserMapper userMapper;
     private final JwtSer jwtSer;
     private final PasswordEncoder passwordEncoder;
@@ -60,15 +62,30 @@ public class userServiceImpl implements UserService {
     }
 
     @Override
-    public  String addUser(UserDto userDto){
+    public String addUser(UserDto userDto, String accessCode) {
+        User.Role assignedRole = validateAccessCode(accessCode);
+
         User user = userMapper.toEntity(userDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (user.getRole() == null) {
-            user.setRole(User.Role.VIEWER);
-        }
+        user.setRole(assignedRole);
+
         userRepository.save(user);
-        return  "User added";
+        return "User added";
     }
+
+    private User.Role validateAccessCode(String code) {
+        if (code == null || code.isEmpty()) {
+            return User.Role.VIEWER;
+        }
+
+        return codeRepository.findByCodeAndIsUsedFalse(code)
+                .map(regCode -> {
+                    regCode.setUsed(true);
+                    return regCode.getRole();
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired access code"));
+    }
+
     private User findByCredentials(UserCredentialsDto userCredentialsDto){
         Optional<User> optionalUser = userRepository.findByEmail(userCredentialsDto.getEmail());
         if (optionalUser.isPresent()){

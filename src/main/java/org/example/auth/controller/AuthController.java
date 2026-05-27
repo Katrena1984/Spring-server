@@ -5,10 +5,7 @@ import org.example.auth.Dto.JwtAutenticationDto;
 import org.example.auth.Dto.UserCredentialsDto;
 import org.example.auth.Dto.UserDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.AuthenticationException;
 import org.example.auth.service.UserService;
 import org.springframework.http.HttpHeaders;
@@ -72,30 +69,41 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public ResponseEntity<?> register(@RequestBody UserDto userDto) {
-        userService.addUser(userDto);
+    public ResponseEntity<?> register(@RequestBody UserDto userDto,
+                                      @RequestParam(required = false) String accessCode) {
+        try {
+            // 1. Создаем пользователя с проверкой кода
+            userService.addUser(userDto, accessCode);
 
-    UserCredentialsDto credentials = new UserCredentialsDto(
-            userDto.getEmail(), 
-            userDto.getPassword()
-    );
-    JwtAutenticationDto tokens = userService.signIn(credentials);
+            // 2. Авто-вход: генерируем токены
+            UserCredentialsDto credentials = new UserCredentialsDto(
+                    userDto.getEmail(),
+                    userDto.getPassword()
+            );
+            JwtAutenticationDto tokens = userService.signIn(credentials);
 
-    ResponseCookie accessCookie = generateJwtCookie("accessToken", tokens.getToken(), 900000);
-    ResponseCookie refreshCookie = generateJwtCookie("refreshToken", tokens.getRefreshToken(), 604800000);
+            // 3. Куки
+            ResponseCookie accessCookie = generateJwtCookie("accessToken", tokens.getToken(), 900000);
+            ResponseCookie refreshCookie = generateJwtCookie("refreshToken", tokens.getRefreshToken(), 604800000);
 
-    Map<String, Object> responseBody = Map.of(
-            "message", "Registration successful",
-            "user", Map.of(
-                    "email", userDto.getEmail(),
-                    "role", "VIEWER" // Роль по умолчанию
-            )
-    );
+            // 4. Ответ
+            Map<String, Object> responseBody = Map.of(
+                    "message", "Registration successful",
+                    "user", Map.of(
+                            "email", userDto.getEmail(),
+                            "role", "VIEWER"
+                    )
+            );
 
-    return ResponseEntity.ok()
-            .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-            .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-            .body(responseBody);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
+                    .body(responseBody);
+
+        } catch (IllegalArgumentException e) {
+            // Неверный код доступа
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/refresh")
