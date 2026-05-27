@@ -5,6 +5,7 @@ import org.example.auth.Dto.RefreshTokenDto;
 import org.example.auth.Dto.JwtAutenticationDto;
 import org.example.auth.Dto.UserDto;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.example.auth.entity.User;
 
 public interface UserService {
     JwtAutenticationDto signIn(UserCredentialsDto userCredentialsDto);
