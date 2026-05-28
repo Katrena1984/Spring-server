@@ -132,6 +132,71 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+<plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.1.0</version>
+            <executions>
+                <!-- 1. npm install -->
+                <execution>
+                    <id>npm install</id>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <phase>generate-resources</phase>
+                    <configuration>
+                        <executable>npm</executable>
+                        <arguments>
+                            <argument>install</argument>
+                        </arguments>
+                        <workingDirectory>${project.basedir}/client</workingDirectory>
+                    </configuration>
+                </execution>
+                
+                <!-- 2. npm run build -->
+                <execution>
+                    <id>npm run build</id>
+                    <goals>
+                        <goal>exec</goal>
+                    </goals>
+                    <phase>generate-resources</phase>
+                    <configuration>
+                        <executable>npm</executable>
+                        <arguments>
+                            <argument>run</argument>
+                            <argument>build</argument>
+                        </arguments>
+                        <workingDirectory>${project.basedir}/client</workingDirectory>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+        <!--  Плагин для копирования собранного фронта в resources/static -->
+        <plugin>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.3.1</version>
+            <executions>
+                <execution>
+                    <id>copy-resources</id>
+                    <phase>process-resources</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${basedir}/target/classes/static</outputDirectory>
+                        <resources>
+                            <resource>
+                                <directory>${basedir}/client/dist</directory>
+                                <filtering>false</filtering>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+			
 		</plugins>
 	</build>
 
