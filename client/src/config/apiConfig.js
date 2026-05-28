@@ -1,0 +1,1 @@
+export const API_BASE_URL = 'https://spring-server-yo18.onrender.com';
