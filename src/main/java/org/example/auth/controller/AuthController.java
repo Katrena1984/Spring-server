@@ -28,7 +28,7 @@ public class AuthController {
                 .secure(true)                     // true только для HTTPS
                 .path("/")                         // Доступно для всего сайта
                 .maxAge(Duration.ofMillis(expirationMs))
-                .sameSite("Strict")               // Защита от CSRF
+                .sameSite("None")
                 .build();
     }
 
@@ -38,7 +38,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(0)                        // Удалить cookie
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
     }
 
