@@ -4,6 +4,10 @@ RUN apk add --no-cache nodejs npm
 
 WORKDIR /app
 
+COPY .mvn ./.mvn
+COPY mvnw ./mvnw
+RUN chmod +x ./mvnw
+
 COPY pom.xml ./
 RUN ./mvnw dependency:go-offline -B
 
@@ -15,7 +19,6 @@ RUN ./mvnw clean package -DskipTests -B
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
-
 
 COPY --from=build /app/target/*.jar app.jar
 
