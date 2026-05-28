@@ -45,17 +45,25 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/index.html",
-                                "/assets/**",
-                                "/static/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/favicon.ico",
-                                "/vite.svg",
-                                "/*.svg"
+                                "/register",
+                                "/login",
+                                "/dashboard",
+                                "/profile"
                         ).permitAll()
 
-                        .anyRequest().authenticated())
+                        .requestMatchers(
+                                "/assets/**",
+                                "/static/**",
+                                "/*.js",
+                                "/*.css",
+                                "/*.svg",
+                                "/*.ico",
+                                "/*.png"
+                        ).permitAll()
+
+                        .requestMatchers("/api/**", "/user/**").authenticated()
+
+                        .anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         
