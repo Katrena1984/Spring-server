@@ -21,7 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
                     @Override
                     protected Resource getResource(String resourcePath, Resource location) throws IOException {
                         Resource requestedResource = location.createRelative(resourcePath);
-                        // Если файл существует (картинка, js, css) - отдаем его
                         if (requestedResource.exists() && requestedResource.isReadable()) {
                             return requestedResource;
                         }

@@ -41,7 +41,7 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/user/registration", "/auth/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/vite.svg").permitAll()
                         .requestMatchers("/**").authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
