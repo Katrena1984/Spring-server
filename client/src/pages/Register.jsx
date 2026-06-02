@@ -96,7 +96,6 @@ const Register = () => {
               type="password" 
               name="accessCode"
               placeholder="Код доступа (выдаётся администратором)" 
-              required 
               value={formData.accessCode}
               onChange={handleChange}
             />
