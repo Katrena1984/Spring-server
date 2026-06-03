@@ -78,12 +78,9 @@ public class userServiceImpl implements UserService {
             return User.Role.VIEWER;
         }
 
-        return codeRepository.findByCodeAndIsUsedFalse(code)
-                .map(regCode -> {
-                    regCode.setUsed(true);
-                    return regCode.getRole();
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired access code"));
+        return codeRepository.findByCode(code.trim()) 
+            .map(regCode -> regCode.getRole()) 
+            .orElseThrow(() -> new IllegalArgumentException("Invalid access code"));
     }
 
     private User findByCredentials(UserCredentialsDto userCredentialsDto){
