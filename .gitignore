@@ -44,4 +44,4 @@ logs/
 ### OS FILES ###
 .DS_Store
 Thumbs.db
-
+.PVS-Studio
