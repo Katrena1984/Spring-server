@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       ? `/auth/registration?accessCode=${encodeURIComponent(accessCode.trim())}`
       : '/auth/registration';
 
-    console.log('📤 Отправка на:', url);
+    console.log('Отправка на:', url);
 
     const response = await api.post(url, {
       email,
