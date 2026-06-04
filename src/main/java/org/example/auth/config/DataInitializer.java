@@ -17,7 +17,7 @@ public class DataInitializer {
     @Bean
     CommandLineRunner initDatabase() {
         return args -> {
-            System.out.println("🚀 Initializing registration codes...");
+            System.out.println("Initializing registration codes...");
             
             ensureCodeExists("ADMIN-2024", User.Role.ADMIN);
             ensureCodeExists("EDITOR-2024", User.Role.EDITOR);
